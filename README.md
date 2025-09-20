@@ -4,6 +4,8 @@
 
 This repository contains **performance testing scripts and reports** created using **Apache JMeter**. The tests evaluate the responsiveness, stability, and scalability of APIs and web applications under different load conditions.
 
+<img width="1365" height="330" alt="image" src="https://github.com/user-attachments/assets/724c215b-0a74-4866-9573-cdd6036d4782" />
+
 ---
 
 ## 📊 Test Example
