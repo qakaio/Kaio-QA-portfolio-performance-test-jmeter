@@ -35,8 +35,8 @@ In a test with **10 simultaneous users** on the public API **JSONPlaceholder**:
 1. **Install JMeter**: [Apache JMeter](https://jmeter.apache.org/download_jmeter.cgi)  
 2. **Clone this repository**:  
    ```bash
-   git clone <repository-url>
-   cd <repository-folder>
+   git clone Kaio-QA-portfolio-performance-test-jmeter
+   cd Kaio-QA-portfolio-performance-test-jmeter
    ```  
 3. **Open the `.jmx` test plan** in JMeter  
 4. **Adjust parameters** (number of users, ramp-up time, loops, etc.) as needed  
