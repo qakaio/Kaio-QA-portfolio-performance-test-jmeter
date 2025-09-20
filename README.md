@@ -51,9 +51,7 @@ In a test with **10 simultaneous users** on the public API **JSONPlaceholder**:
 
 ```
 /tests
-   └── test-plan.jmx       # JMeter test plan
-/reports
-   └── example-report.html # Sample performance report
+   └── Kaio QA - Performance Test.jmx      # JMeter test plan
 /README.md                 # Project documentation
 ```
 
