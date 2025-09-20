@@ -12,14 +12,14 @@ This repository contains **performance testing scripts and reports** created usi
 
 In a test with **10 simultaneous users** on the public API **JSONPlaceholder**:  
 
-- **Average response time:** 375 ms  
-- **Minimum response time:** 55 ms  
-- **Maximum response time:** 1425 ms  
+- **Average response time:** 512 ms  
+- **Minimum response time:** 53 ms  
+- **Maximum response time:** 1326 ms  
 - **Error rate:** 0%  
-- **Throughput:** 2.3 requests/sec  
-- **Data transfer rate:** 15.44 KB/s  
+- **Throughput:** 2.2 requests/sec  
+- **Data transfer rate:** 15.02 KB/s  
 
-✅ These results indicate that the API remained stable under the applied load, with acceptable response times for the simulated users. Despite the peak of 1425 ms, the **average response time remained consistent**, demonstrating that the API can handle multiple simultaneous requests without failures.
+✅ These results indicate that the API remained stable under the applied load, with acceptable response times for the simulated users. Despite the peak of 1326 ms, the **average response time remained consistent**, demonstrating that the API can handle multiple simultaneous requests without failures.
 
 ---
 
