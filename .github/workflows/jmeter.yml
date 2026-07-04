@@ -45,7 +45,15 @@ jobs:
       - name: Run JMeter Test
         run: |
           TEST_PLAN="${{ github.event.inputs.test-plan || 'load' }}"
-          jmeter -n -t tests/${TEST_PLAN}-test.jmx -l results.jtl -e -o html-report
+          # Check if test plan exists
+          if [ ! -f "tests/${TEST_PLAN}-test.jmx" ]; then
+            echo "Test plan tests/${TEST_PLAN}-test.jmx not found"
+            echo "Available test plans:"
+            ls -la tests/
+            exit 1
+          fi
+          
+          jmeter -n -t "tests/${TEST_PLAN}-test.jmx" -l results.jtl -e -o html-report
           echo "TEST_PLAN=${TEST_PLAN}" >> $GITHUB_ENV
 
       - name: Upload HTML Report
@@ -65,8 +73,13 @@ jobs:
       - name: Check Thresholds
         if: always()
         run: |
-          ERROR_RATE=$(awk -F',' 'NR>1 && $8=="false" {errors++} END {print errors/NR*100}' results.jtl)
-          AVG_RESPONSE=$(awk -F',' 'NR>1 {sum+=$2} END {print sum/(NR-1)}' results.jtl)
+          if [ ! -f results.jtl ]; then
+            echo "❌ No results file found"
+            exit 1
+          fi
+          
+          ERROR_RATE=$(awk -F',' 'NR>1 && $8=="false" {errors++} END {if (NR>1) print errors/(NR-1)*100; else print 0}' results.jtl)
+          AVG_RESPONSE=$(awk -F',' 'NR>1 {sum+=$2} END {if (NR>1) print sum/(NR-1); else print 0}' results.jtl)
           
           echo "Error Rate: ${ERROR_RATE}%"
           echo "Avg Response: ${AVG_RESPONSE}ms"
