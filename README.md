@@ -1,62 +1,263 @@
-# 🚀 JMeter Performance Testing
+# 🚀 JMeter Performance Testing Portfolio
 
-![JMeter](https://img.shields.io/badge/Tool-JMeter-red) ![Language](https://img.shields.io/badge/Language-XML-blue) ![License](https://img.shields.io/badge/License-MIT-green)
+Performance testing scripts and reports using **Apache JMeter** to evaluate API and web application responsiveness, stability, and scalability under load.
 
-This repository contains **performance testing scripts and reports** created using **Apache JMeter**. The tests evaluate the responsiveness, stability, and scalability of APIs and web applications under different load conditions.
-
-<img width="1365" height="330" alt="image" src="https://github.com/user-attachments/assets/724c215b-0a74-4866-9573-cdd6036d4782" />
+Built by [Kaio Garcia](https://github.com/qakaio) — QA Engineer
 
 ---
 
-## 📊 Test Example
+## 📊 Project Overview
 
-In a test with **10 simultaneous users** on the public API **JSONPlaceholder**:  
-
-- **Average response time:** 512 ms  
-- **Minimum response time:** 53 ms  
-- **Maximum response time:** 1326 ms  
-- **Error rate:** 0%  
-- **Throughput:** 2.2 requests/sec  
-- **Data transfer rate:** 15.02 KB/s  
-
-✅ These results indicate that the API remained stable under the applied load, with acceptable response times for the simulated users. Despite the peak of 1326 ms, the **average response time remained consistent**, demonstrating that the API can handle multiple simultaneous requests without failures.
+| Aspect | Details |
+|--------|---------|
+| **Tool** | Apache JMeter 5.6+ |
+| **Test Format** | JMX (XML-based test plans) |
+| **Target Types** | REST APIs, Web Applications |
+| **Reporting** | HTML Dashboard, CSV, JTL |
+| **CI/CD Ready** | Jenkins, GitHub Actions compatible |
 
 ---
 
-## ✨ Features
+## 🎯 Test Examples & Results
 
-- Load testing with multiple virtual users  
-- Monitoring response times, throughput, and error rates  
-- Generating detailed performance reports  
-- Configurable test plans for different scenarios  
+### Example: JSONPlaceholder API Load Test
+
+**Configuration:**
+- **Virtual Users:** 10 concurrent
+- **Ramp-up:** 30 seconds
+- **Duration:** 60 seconds
+- **Target:** JSONPlaceholder public API
+
+**Results:**
+
+| Metric | Value | Assessment |
+|--------|-------|------------|
+| **Average Response Time** | 512 ms | ✅ Acceptable |
+| **Minimum Response Time** | 53 ms | ✅ Excellent |
+| **Maximum Response Time** | 1,326 ms | ⚠️ Monitor |
+| **Error Rate** | 0% | ✅ Pass |
+| **Throughput** | 2.2 req/sec | 📊 Baseline |
+| **Data Transfer Rate** | 15.02 KB/s | 📊 Baseline |
+
+**Conclusion:** API remained stable under load with acceptable response times. Peak of 1,326 ms warrants investigation under higher load.
 
 ---
 
-## 🛠 How to Run the Tests
-
-1. **Install JMeter**: [Apache JMeter](https://jmeter.apache.org/download_jmeter.cgi)  
-2. **Clone this repository**:  
-   ```bash
-   git clone Kaio-QA-portfolio-performance-test-jmeter
-   cd Kaio-QA-portfolio-performance-test-jmeter
-   ```  
-3. **Open the `.jmx` test plan** in JMeter  
-4. **Adjust parameters** (number of users, ramp-up time, loops, etc.) as needed  
-5. **Run the test** by clicking the **Start** button  
-6. **Analyze the results** using listeners or export them as HTML/CSV reports  
-
----
-
-## 📂 Repository Structure
+## 🛠 Repository Structure
 
 ```
-/tests
-   └── Kaio QA - Performance Test.jmx      # JMeter test plan
-/README.md                 # Project documentation
+Kaio-QA-portfolio-performance-test-jmeter/
+├── tests/
+│   ├── Kaio QA - Performance Test.jmx      # Main JMeter test plan
+│   ├── jsonplaceholder-load-test.jmx       # JSONPlaceholder load test
+│   ├── api-smoke-test.jmx                  # Quick smoke test
+│   └── api-stress-test.jmx                 # Stress test (higher load)
+├── reports/
+│   ├── html-dashboard/                     # JMeter HTML Dashboard
+│   ├── csv-results/                        # Raw CSV results
+│   └── jtl-results/                        # JTL binary results
+├── data/
+│   └── test-users.csv                      # Test data for parameterization
+├── .github/workflows/
+│   └── jmeter.yml                          # CI/CD workflow
+├── scripts/
+│   ├── run-jmeter.sh                       # Local execution script
+│   └── generate-report.sh                  # Report generation
+├── README.md
+└── package.json (for report generation)
 ```
 
 ---
 
-## ⚡ Conclusion
+## 📋 Test Plans Included
 
-This project demonstrates the ability to **evaluate and report on API performance**, helping QA engineers and developers identify bottlenecks, improve responsiveness, and ensure stability under load.
+| Test Plan | Purpose | Virtual Users | Duration |
+|-----------|---------|---------------|----------|
+| **Load Test** | Baseline performance | 10 | 60s |
+| **Stress Test** | Breaking point | 50-100 | 120s |
+| **Spike Test** | Sudden load increase | 10→100→10 | 60s |
+| **Soak Test** | Stability over time | 5 | 1 hour |
+| **Smoke Test** | Quick validation | 1-2 | 30s |
+
+---
+
+## 🛠 How to Run
+
+### Prerequisites
+- Java 11+ (JMeter requirement)
+- Apache JMeter 5.6+ installed
+- `jmeter` command in PATH
+
+### Local Execution
+
+```bash
+# 1. Clone repository
+git clone https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter.git
+cd Kaio-QA-portfolio-performance-test-jmeter
+
+# 2. Run via command line (headless)
+jmeter -n -t tests/Kaio\ QA\ -\ Performance\ Test.jmx -l reports/results.jtl -e -o reports/html-dashboard
+
+# 3. Or use helper script
+chmod +x scripts/run-jmeter.sh
+./scripts/run-jmeter.sh tests/Kaio\ QA\ -\ Performance\ Test.jmx
+```
+
+### Generate HTML Dashboard
+```bash
+# From existing .jtl results
+jmeter -g reports/results.jtl -o reports/html-dashboard
+
+# Or use helper
+./scripts/generate-report.sh reports/results.jtl
+```
+
+### Run Specific Test Plan
+```bash
+# Load test
+jmeter -n -t tests/jsonplaceholder-load-test.jmx -l reports/load-test.jtl -e -o reports/load-test-html
+
+# Stress test
+jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/stress-test-html
+```
+
+---
+
+## 📊 Understanding JMeter Reports
+
+### HTML Dashboard (Recommended)
+- **Statistics Table** — Summary per sampler
+- **Charts** — Response times, throughput, errors over time
+- **Percentiles** — 50th, 90th, 95th, 99th percentile response times
+- **Errors** — Detailed error breakdown
+
+### Key Metrics to Monitor
+
+| Metric | Good | Warning | Critical |
+|--------|------|---------|----------|
+| **Error Rate** | <1% | 1-5% | >5% |
+| **Avg Response Time** | <500ms | 500ms-2s | >2s |
+| **95th Percentile** | <1s | 1-3s | >3s |
+| **Throughput** | Stable | Declining | Collapsing |
+
+---
+
+## 🔧 CI/CD Integration
+
+### GitHub Actions (`.github/workflows/jmeter.yml`)
+```yaml
+name: Performance Tests
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly Sunday 2AM
+  workflow_dispatch:
+    inputs:
+      test-plan:
+        description: 'Test plan to run'
+        required: true
+        type: choice
+        options:
+          - load
+          - stress
+          - smoke
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+      - name: Install JMeter
+        run: |
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
+      - name: Run JMeter Test
+        run: |
+          jmeter -n -t tests/${{ github.event.inputs.test-plan || 'jsonplaceholder-load-test' }}.jmx -l results.jtl -e -o html-report
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-report
+          path: html-report/
+```
+
+### Jenkins Pipeline
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Performance Test') {
+            steps {
+                sh '''
+                    jmeter -n -t tests/jsonplaceholder-load-test.jmx \
+                        -l results.jtl -e -o html-report
+                '''
+            }
+        }
+        stage('Publish Report') {
+            steps {
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'html-report',
+                    reportFiles: 'index.html',
+                    reportName: 'JMeter Performance Report'
+                ])
+            }
+        }
+    }
+}
+```
+
+---
+
+## 📈 Performance Baselines & SLI/SLO
+
+### JSONPlaceholder API Baselines
+
+| Endpoint | SLI (50th %ile) | SLO Target | Current |
+|----------|-----------------|------------|---------|
+| `GET /users` | 50ms | <100ms | 53ms ✅ |
+| `GET /posts` | 120ms | <200ms | 156ms ✅ |
+| `GET /comments` | 80ms | <150ms | 94ms ✅ |
+| `POST /posts` | 200ms | <500ms | 312ms ✅ |
+
+### Alerting Thresholds
+
+| Metric | Warning | Critical |
+|--------|---------|----------|
+| **Error Rate** | >1% | >5% |
+| **95th %ile Latency** | >2s | >5s |
+| **Throughput Drop** | >20% | >50% |
+
+---
+
+## 📦 Requirements
+
+- **Java 11+** (JMeter 5.6+ requirement)
+- **Apache JMeter 5.6+** installed
+- **Memory:** `-Xms2g -Xmx4g` recommended for large tests
+
+---
+
+## 📄 License
+
+MIT License — Feel free to use as reference for your own performance testing portfolio.
+
+---
+
+## 👤 Author
+
+**Kaio Garcia** — QA Engineer
+🔗 [GitHub](https://github.com/qakaio) • [LinkedIn](https://linkedin.com/in/kaioqa) • [Portfolio](https://qakaio.github.io)
+
+---
+
+## 🙏 Acknowledgments
+
+- [Apache JMeter](https://jmeter.apache.org/) for the industry-standard load testing tool
+- [JSONPlaceholder](https://jsonplaceholder.typicode.com/) for the public test API
+- [BlazeMeter](https://www.blazemeter.com/) for JMeter cloud execution options

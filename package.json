@@ -1,0 +1,38 @@
+{
+  "name": "kaio-qa-portfolio-performance-test-jmeter",
+  "version": "1.0.0",
+  "description": "Performance testing portfolio using Apache JMeter for API and web application load testing with baselines, SLI/SLO, and HTML reporting.",
+  "author": "Kaio Garcia <kaioqa@protonmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter.git"
+  },
+  "homepage": "https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter",
+  "bugs": {
+    "url": "https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter/issues"
+  },
+  "keywords": [
+    "jmeter",
+    "performance-testing",
+    "load-testing",
+    "stress-testing",
+    "api-performance",
+    "ci-cd",
+    "github-actions"
+  ],
+  "scripts": {
+    "test:load": "jmeter -n -t tests/jsonplaceholder-load-test.jmx -l reports/load-test.jtl -e -o reports/load-test-html",
+    "test:stress": "jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/stress-test-html",
+    "test:smoke": "jmeter -n -t tests/api-smoke-test.jmx -l reports/smoke-test.jtl -e -o reports/smoke-test-html",
+    "report": "jmeter -g reports/latest.jtl -o reports/html-dashboard",
+    "clean": "rm -rf reports/*.jtl reports/*-html reports/html-dashboard"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "java": ">=11.0.0"
+  }
+}
