@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.10'  # Specific version
+          java-version: '17'  # Use general version, not specific patch
           cache: 'gradle'
 
       - name: Verify Java
