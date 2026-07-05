@@ -46,6 +46,12 @@ jobs:
           echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> $GITHUB_PATH
           echo "JMETER_HOME=$PWD/apache-jmeter-${JMETER_VERSION}" >> $GITHUB_ENV
 
+      - name: Test Network Connectivity
+        run: |
+          echo "Testing connectivity to jsonplaceholder.typicode.com..."
+          curl -I https://jsonplaceholder.typicode.com/users || echo "curl failed"
+          ping -c 2 jsonplaceholder.typicode.com || echo "ping failed"
+
       - name: Run JMeter Test
         run: |
           TEST_PLAN="${{ github.event.inputs.test-plan || 'jsonplaceholder-load' }}"
