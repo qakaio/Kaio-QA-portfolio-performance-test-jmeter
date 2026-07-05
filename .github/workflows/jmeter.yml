@@ -45,7 +45,6 @@ jobs:
       - name: Run JMeter Test
         run: |
           TEST_PLAN="${{ github.event.inputs.test-plan || 'load' }}"
-          # Check if test plan exists
           if [ ! -f "tests/${TEST_PLAN}-test.jmx" ]; then
             echo "Test plan tests/${TEST_PLAN}-test.jmx not found"
             echo "Available test plans:"
