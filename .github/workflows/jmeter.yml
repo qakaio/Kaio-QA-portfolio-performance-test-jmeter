@@ -10,16 +10,14 @@ on:
         required: true
         type: choice
         options:
-          - load
-          - stress
-          - spike
-          - soak
-          - smoke
-        default: 'load'
+          - jsonplaceholder-load
+          - api-stress
+          - api-smoke
+        default: 'jsonplaceholder-load'
 
 jobs:
   performance:
-    name: JMeter Performance Test (${{ github.event.inputs.test-plan || 'load' }})
+    name: JMeter Performance Test (${{ github.event.inputs.test-plan || 'jsonplaceholder-load' }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -50,7 +48,7 @@ jobs:
 
       - name: Run JMeter Test
         run: |
-          TEST_PLAN="${{ github.event.inputs.test-plan || 'load' }}"
+          TEST_PLAN="${{ github.event.inputs.test-plan || 'jsonplaceholder-load' }}"
           if [ ! -f "tests/${TEST_PLAN}-test.jmx" ]; then
             echo "Test plan tests/${TEST_PLAN}-test.jmx not found"
             echo "Available test plans:"
