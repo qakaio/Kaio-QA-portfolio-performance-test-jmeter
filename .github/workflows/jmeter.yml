@@ -31,13 +31,14 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '17.0.10'  # Specific version
           cache: 'gradle'
 
       - name: Verify Java
         run: |
           java -version
           echo "JAVA_HOME=$JAVA_HOME"
+          which java
 
       - name: Install JMeter
         run: |
