@@ -56,8 +56,21 @@ jobs:
             exit 1
           fi
           
-          jmeter -n -t "tests/${TEST_PLAN}-test.jmx" -l results.jtl -e -o html-report
+          echo "Running JMeter test: ${TEST_PLAN}"
+          jmeter -n -t "tests/${TEST_PLAN}-test.jmx" -l results.jtl -e -o html-report -j jmeter.log
           echo "TEST_PLAN=${TEST_PLAN}" >> $GITHUB_ENV
+
+      - name: Show JMeter Log on Failure
+        if: failure()
+        run: |
+          echo "=== JMeter Log ==="
+          cat jmeter.log || true
+
+      - name: Show Results Preview on Failure
+        if: failure()
+        run: |
+          echo "=== Results Preview ==="
+          head -20 results.jtl || true
 
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
@@ -71,6 +84,14 @@ jobs:
         with:
           name: jmeter-results-${{ env.TEST_PLAN }}
           path: results.jtl
+          retention-days: 30
+
+      - name: Upload JMeter Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-log-${{ env.TEST_PLAN }}
+          path: jmeter.log
           retention-days: 30
 
       - name: Check Thresholds
