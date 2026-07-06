@@ -1,0 +1,7 @@
+# JMeter
+*.log
+*.jtl
+html-report/
+*.png
+*.jpg
+.DS_Store
