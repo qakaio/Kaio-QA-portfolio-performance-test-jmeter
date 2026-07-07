@@ -1,5 +1,9 @@
 # 🚀 JMeter Performance Testing Portfolio
 
+![JMeter Tests](https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter/actions/workflows/jmeter.yml/badge.svg)
+
+# 🚀 JMeter Performance Testing Portfolio
+
 Performance testing scripts and reports using **Apache JMeter** to evaluate API and web application responsiveness, stability, and scalability under load.
 
 Built by [Kaio Garcia](https://github.com/qakaio) — QA Engineer
