@@ -1,16 +1,15 @@
-# 🚀 JMeter Performance Testing Portfolio
+# JMeter Performance Testing Portfolio
 
 ![JMeter Tests](https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter/actions/workflows/jmeter.yml/badge.svg)
-
-# 🚀 JMeter Performance Testing Portfolio
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 Performance testing scripts and reports using **Apache JMeter** to evaluate API and web application responsiveness, stability, and scalability under load.
 
-Built by [Kaio Garcia](https://github.com/qakaio) — QA Engineer
+Built by [Kaio Garcia](https://github.com/qakaio) — Senior QA Engineer
 
 ---
 
-## 📊 Project Overview
+## Project Overview
 
 | Aspect | Details |
 |--------|---------|
@@ -18,36 +17,23 @@ Built by [Kaio Garcia](https://github.com/qakaio) — QA Engineer
 | **Test Format** | JMX (XML-based test plans) |
 | **Target Types** | REST APIs, Web Applications |
 | **Reporting** | HTML Dashboard, CSV, JTL |
-| **CI/CD Ready** | Jenkins, GitHub Actions compatible |
+| **CI/CD** | GitHub Actions, Jenkins compatible |
 
 ---
 
-## 🎯 Test Examples & Results
+## Test Plans Included
 
-### Example: JSONPlaceholder API Load Test
-
-**Configuration:**
-- **Virtual Users:** 10 concurrent
-- **Ramp-up:** 30 seconds
-- **Duration:** 60 seconds
-- **Target:** JSONPlaceholder public API
-
-**Results:**
-
-| Metric | Value | Assessment |
-|--------|-------|------------|
-| **Average Response Time** | 512 ms | ✅ Acceptable |
-| **Minimum Response Time** | 53 ms | ✅ Excellent |
-| **Maximum Response Time** | 1,326 ms | ⚠️ Monitor |
-| **Error Rate** | 0% | ✅ Pass |
-| **Throughput** | 2.2 req/sec | 📊 Baseline |
-| **Data Transfer Rate** | 15.02 KB/s | 📊 Baseline |
-
-**Conclusion:** API remained stable under load with acceptable response times. Peak of 1,326 ms warrants investigation under higher load.
+| Test Plan | Purpose | Virtual Users | Duration |
+|-----------|---------|---------------|----------|
+| **Load Test** | Baseline performance | 10 | 60s |
+| **Stress Test** | Breaking point | 50-100 | 120s |
+| **Spike Test** | Sudden load increase | 10→100→10 | 60s |
+| **Soak Test** | Stability over time | 5 | 1 hour |
+| **Smoke Test** | Quick validation | 1-2 | 30s |
 
 ---
 
-## 🛠 Repository Structure
+## Repository Structure
 
 ```
 Kaio-QA-portfolio-performance-test-jmeter/
@@ -73,19 +59,7 @@ Kaio-QA-portfolio-performance-test-jmeter/
 
 ---
 
-## 📋 Test Plans Included
-
-| Test Plan | Purpose | Virtual Users | Duration |
-|-----------|---------|---------------|----------|
-| **Load Test** | Baseline performance | 10 | 60s |
-| **Stress Test** | Breaking point | 50-100 | 120s |
-| **Spike Test** | Sudden load increase | 10→100→10 | 60s |
-| **Soak Test** | Stability over time | 5 | 1 hour |
-| **Smoke Test** | Quick validation | 1-2 | 30s |
-
----
-
-## 🛠 How to Run
+## How to Run
 
 ### Prerequisites
 - Java 11+ (JMeter requirement)
@@ -93,7 +67,6 @@ Kaio-QA-portfolio-performance-test-jmeter/
 - `jmeter` command in PATH
 
 ### Local Execution
-
 ```bash
 # 1. Clone repository
 git clone https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter.git
@@ -127,7 +100,7 @@ jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/
 
 ---
 
-## 📊 Understanding JMeter Reports
+## Understanding JMeter Reports
 
 ### HTML Dashboard (Recommended)
 - **Statistics Table** — Summary per sampler
@@ -146,7 +119,7 @@ jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/
 
 ---
 
-## 🔧 CI/CD Integration
+## CI/CD Integration
 
 ### GitHub Actions (`.github/workflows/jmeter.yml`)
 ```yaml
@@ -187,38 +160,9 @@ jobs:
           path: html-report/
 ```
 
-### Jenkins Pipeline
-```groovy
-pipeline {
-    agent any
-    stages {
-        stage('Performance Test') {
-            steps {
-                sh '''
-                    jmeter -n -t tests/jsonplaceholder-load-test.jmx \
-                        -l results.jtl -e -o html-report
-                '''
-            }
-        }
-        stage('Publish Report') {
-            steps {
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'html-report',
-                    reportFiles: 'index.html',
-                    reportName: 'JMeter Performance Report'
-                ])
-            }
-        }
-    }
-}
-```
-
 ---
 
-## 📈 Performance Baselines & SLI/SLO
+## Performance Baselines & SLI/SLO
 
 ### JSONPlaceholder API Baselines
 
@@ -239,29 +183,25 @@ pipeline {
 
 ---
 
-## 📦 Requirements
-
+## Requirements
 - **Java 11+** (JMeter 5.6+ requirement)
 - **Apache JMeter 5.6+** installed
 - **Memory:** `-Xms2g -Xmx4g` recommended for large tests
 
 ---
 
-## 📄 License
-
+## License
 MIT License — Feel free to use as reference for your own performance testing portfolio.
 
 ---
 
-## 👤 Author
-
-**Kaio Garcia** — QA Engineer
+## Author
+**Kaio Garcia** — Senior QA Engineer  
 🔗 [GitHub](https://github.com/qakaio) • [LinkedIn](https://linkedin.com/in/kaioqa) • [Portfolio](https://qakaio.github.io)
 
 ---
 
-## 🙏 Acknowledgments
-
+## Acknowledgments
 - [Apache JMeter](https://jmeter.apache.org/) for the industry-standard load testing tool
 - [JSONPlaceholder](https://jsonplaceholder.typicode.com/) for the public test API
 - [BlazeMeter](https://www.blazemeter.com/) for JMeter cloud execution options
