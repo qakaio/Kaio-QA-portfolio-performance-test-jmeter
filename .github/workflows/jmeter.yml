@@ -106,7 +106,7 @@ jobs:
           jmeter -n -t tests/jsonplaceholder-load-test.jmx -l results-load.jtl
 
       - name: Install Allure
-        run: npm install -g allure-commandline
+        run: npm install allure-commandline
 
       - name: Generate Allure Report
         if: always()
