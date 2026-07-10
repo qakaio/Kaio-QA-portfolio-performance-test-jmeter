@@ -42,65 +42,24 @@ jobs:
         run: |
           wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xzf apache-jmeter-5.6.3.tgz
-          echo "$HOME/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
-
-      - name: Install JMeter Allure Plugin
-        run: |
-          mkdir -p $HOME/apache-jmeter-5.6.3/lib/ext
-          wget -q https://repo.maven.apache.org/maven2/io/qameta/allure/allure-jmeter/2.20.0/allure-jmeter-2.20.0.jar -O $HOME/apache-jmeter-5.6.3/lib/ext/allure-jmeter-2.20.0.jar
+          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
 
       - name: Run JMeter Test
         run: |
-          jmeter -n -t tests/${{ matrix.test_type }}.jmx -l results-${{ matrix.test_type }}.jtl -e -o report-${{ matrix.test_type }} -Djmeter.reportgenerator.exporter.allure.classname=io.qameta.allure.jmeter.AllureExporter -Djmeter.reportgenerator.outputdir=allure-results-${{ matrix.test_type }}
+          jmeter -n -t tests/${{ matrix.test_type }}.jmx -l results-${{ matrix.test_type }}.jtl
 
-      - name: Upload Results
+      - name: Upload JTL Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results-${{ matrix.test_type }}
-          path: |
-            results-${{ matrix.test_type }}.jtl
-            report-${{ matrix.test_type }}/
+          path: results-${{ matrix.test_type }}.jtl
           retention-days: 30
 
-      - name: Upload Allure Results
+      - name: Upload HTML Dashboard
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ matrix.test_type }}
-          path: allure-results-${{ matrix.test_type }}
-          retention-days: 7
-
-  allure-report:
-    name: Generate Allure Report
-    needs: test
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Allure Results
-        uses: actions/download-artifact@v4
-        with:
-          pattern: allure-results-*
-          path: allure-results
-          merge-multiple: true
-
-      - name: Generate Allure Report
-        if: ${{ hashFiles('allure-results/**') != '' }}
-        run: |
-          npx allure generate allure-results --clean -o allure-report
-
-      - name: Upload Allure Report
-        if: ${{ hashFiles('allure-results/**') != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: allure-report
+          name: jmeter-dashboard-${{ matrix.test_type }}
+          path: reports/
           retention-days: 30
-
-      - name: Deploy Allure Report to GitHub Pages
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          destination_dir: allure-report
