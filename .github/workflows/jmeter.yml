@@ -63,3 +63,57 @@ jobs:
           name: jmeter-dashboard-${{ matrix.test_type }}
           path: reports/
           retention-days: 30
+
+  allure:
+    name: Generate Allure Report
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install JMeter
+        run: |
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
+
+      - name: Download Allure JMeter Plugin
+        run: |
+          mkdir -p lib
+          wget -q -O lib/jmeter-allure-plugin-2.16.0.zip https://repo.maven.apache.org/maven2/io/qameta/allure/jmeter-allure-plugin/2.16.0/jmeter-allure-plugin-2.16.0.zip
+          unzip -o lib/jmeter-allure-plugin-2.16.0.zip -d lib/
+          cp lib/jmeter-allure-plugin-2.16.0/*.jar apache-jmeter-5.6.3/lib/
+
+      - name: Create jmeter.properties
+        run: |
+          echo "jmeter.save.saveservice.output_format=xml" > jmeter.properties
+          echo "jmeter.save.saveservice.assertion_results=all" >> jmeter.properties
+          echo "jmeter.save.saveservice.assertion_results_failure_message=true" >> jmeter.properties
+          echo "allure.results.directory=allure-results" >> jmeter.properties
+
+      - name: Run JMeter Tests for Allure
+        run: |
+          jmeter -n -t tests/jsonplaceholder-load-test.jmx -l results-load.jtl
+
+      - name: Generate Allure Report
+        if: always()
+        run: |
+          npx allure generate allure-results --clean -o allure-report
+        env:
+          ALLURE_RESULTS_DIR: allure-results
+
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          destination_dir: allure-report
+          keep_files: true
