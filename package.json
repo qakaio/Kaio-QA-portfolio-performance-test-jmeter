@@ -1,7 +1,7 @@
 {
   "name": "kaio-qa-portfolio-performance-test-jmeter",
   "version": "1.0.0",
-  "description": "Performance testing portfolio using Apache JMeter for API and web application load testing with baselines, SLI/SLO, and HTML reporting.",
+  "description": "JMeter performance testing portfolio with load, stress, and smoke tests. Includes CI/CD with GitHub Actions and Allure reporting.",
   "author": "Kaio Garcia <kaioqa@protonmail.com>",
   "license": "MIT",
   "repository": {
@@ -17,22 +17,21 @@
     "performance-testing",
     "load-testing",
     "stress-testing",
-    "api-performance",
+    "smoke-testing",
     "ci-cd",
-    "github-actions"
+    "github-actions",
+    "allure-report"
   ],
   "scripts": {
-    "test:load": "jmeter -n -t tests/jsonplaceholder-load-test.jmx -l reports/load-test.jtl -e -o reports/load-test-html",
-    "test:stress": "jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/stress-test-html",
-    "test:smoke": "jmeter -n -t tests/api-smoke-test.jmx -l reports/smoke-test.jtl -e -o reports/smoke-test-html",
-    "report": "jmeter -g reports/latest.jtl -o reports/html-dashboard",
-    "clean": "rm -rf reports/*.jtl reports/*-html reports/html-dashboard"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "test:load": "jmeter -n -t tests/load.jmx -l results-load.jtl -e -o report-load",
+    "test:stress": "jmeter -n -t tests/stress.jmx -l results-stress.jtl -e -o report-stress",
+    "test:smoke": "jmeter -n -t tests/smoke.jmx -l results-smoke.jtl -e -o report-smoke",
+    "test:all": "npm run test:load && npm run test:stress && npm run test:smoke",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report"
   },
   "devDependencies": {},
   "engines": {
-    "java": ">=11.0.0"
+    "node": ">=18.0.0"
   }
 }
