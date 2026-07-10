@@ -27,7 +27,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        test_type: ['load', 'stress', 'smoke']
+        test_type: ['jsonplaceholder-load-test', 'api-stress-test', 'api-smoke-test']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
