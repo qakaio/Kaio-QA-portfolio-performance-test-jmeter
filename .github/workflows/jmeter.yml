@@ -105,13 +105,16 @@ jobs:
         run: |
           jmeter -n -t tests/jsonplaceholder-load-test.jmx -l results-load.jtl
 
-      - name: Install Allure
-        run: npm install -g allure-commandline
+      - name: Download and Install Allure
+        run: |
+          wget -q https://github.com/allure-framework/allure2/releases/download/2.30.0/allure-2.30.0.tgz
+          tar -xzf allure-2.30.0.tgz
+          echo "$PWD/allure-2.30.0/bin" >> $GITHUB_PATH
 
       - name: Generate Allure Report
         if: always()
         run: |
-          npx allure generate allure-results --clean -o allure-report
+          allure generate allure-results --clean -o allure-report
         env:
           ALLURE_RESULTS_DIR: allure-results
 
