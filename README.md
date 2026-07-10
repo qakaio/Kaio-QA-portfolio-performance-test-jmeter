@@ -1,6 +1,7 @@
 # JMeter Performance Testing Portfolio
 
 ![JMeter Tests](https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter/actions/workflows/jmeter.yml/badge.svg)
+![Allure Report](https://img.shields.io/badge/Allure-Report-brightgreen?logo=allure)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 Performance testing scripts and reports using **Apache JMeter** to evaluate API and web application responsiveness, stability, and scalability under load.
@@ -16,7 +17,7 @@ Built by [Kaio Garcia](https://github.com/qakaio) — Senior QA Engineer
 | **Tool** | Apache JMeter 5.6+ |
 | **Test Format** | JMX (XML-based test plans) |
 | **Target Types** | REST APIs, Web Applications |
-| **Reporting** | HTML Dashboard, CSV, JTL |
+| **Reporting** | HTML Dashboard, CSV, JTL + **Allure Report** |
 | **CI/CD** | GitHub Actions, Jenkins compatible |
 
 ---
@@ -49,13 +50,28 @@ Kaio-QA-portfolio-performance-test-jmeter/
 ├── data/
 │   └── test-users.csv                      # Test data for parameterization
 ├── .github/workflows/
-│   └── jmeter.yml                          # CI/CD workflow
+│   └── jmeter.yml                          # CI/CD workflow (with Allure)
 ├── scripts/
 │   ├── run-jmeter.sh                       # Local execution script
 │   └── generate-report.sh                  # Report generation
-├── README.md
-└── package.json (for report generation)
+├── jmeter.properties                        # Allure exporter config
+├── package.json (for report generation)
+└── README.md
 ```
+
+---
+
+## Allure Report
+
+**Live Allure Report**: [https://qakaio.github.io/Kaio-QA-portfolio-performance-test-jmeter/allure-report/](https://qakaio.github.io/Kaio-QA-portfolio-performance-test-jmeter/allure-report/)
+
+### Allure Features for JMeter
+- **Test Trends** — Pass/fail history over time (per scenario)
+- **Categories** — Tests grouped by severity, type, test plan
+- **Retries** — Full retry history with timeline
+- **Duration Analysis** — Slowest samplers identification
+- **Charts & Metrics** — Response times, throughput, errors over time
+- **Environment Info** — JMeter version, Java, test plan details
 
 ---
 
@@ -73,11 +89,11 @@ git clone https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter.gi
 cd Kaio-QA-portfolio-performance-test-jmeter
 
 # 2. Run via command line (headless)
-jmeter -n -t tests/Kaio\ QA\ -\ Performance\ Test.jmx -l reports/results.jtl -e -o reports/html-dashboard
+jmeter -n -t "tests/Kaio QA - Performance Test.jmx" -l reports/results.jtl -e -o reports/html-dashboard
 
 # 3. Or use helper script
 chmod +x scripts/run-jmeter.sh
-./scripts/run-jmeter.sh tests/Kaio\ QA\ -\ Performance\ Test.jmx
+./scripts/run-jmeter.sh "tests/Kaio QA - Performance Test.jmx"
 ```
 
 ### Generate HTML Dashboard
@@ -100,9 +116,132 @@ jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/
 
 ---
 
+## Allure Integration
+
+### Configuration (`jmeter.properties`)
+```properties
+# Allure Report Configuration for JMeter
+jmeter.reportgenerator.overall_granularity=60000
+jmeter.reportgenerator.exporter.allure.classname=io.qameta.allure.jmeter.AllureExporter
+jmeter.reportgenerator.outputdir=allure-results
+```
+
+### CI/CD Integration (`.github/workflows/jmeter.yml`)
+```yaml
+name: JMeter Performance Tests
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Daily at 9 AM UTC
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Test type to run'
+        required: true
+        type: choice
+        options:
+          - load
+          - stress
+          - smoke
+          - all
+        default: 'all'
+
+jobs:
+  test:
+    name: JMeter Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        test_type: ['load', 'stress', 'smoke']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install JMeter
+        run: |
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
+
+      - name: Install Allure JMeter Plugin
+        run: |
+          mkdir -p $PWD/apache-jmeter-5.6.3/lib/ext
+          wget -q https://repo.maven.apache.org/maven2/io/qameta/allure/allure-jmeter/2.20.0/allure-jmeter-2.20.0.jar -O $PWD/apache-jmeter-5.6.3/lib/ext/allure-jmeter-2.20.0.jar
+
+      - name: Run JMeter Test
+        run: |
+          jmeter -n -t tests/${{ matrix.test_type }}.jmx -l results-${{ matrix.test_type }}.jtl -Djmeter.reportgenerator.outputdir=allure-results-${{ matrix.test_type }}
+
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.test_type }}
+          path: allure-results-${{ matrix.test_type }}
+          retention-days: 7
+
+      - name: Upload JTL Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-results-${{ matrix.test_type }}
+          path: results-${{ matrix.test_type }}.jtl
+          retention-days: 30
+
+      - name: Upload HTML Dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-html-dashboard-${{ matrix.test_type }}
+          path: html-report-${{ matrix.test_type }}/
+          retention-days: 30
+
+  allure-report:
+    name: Generate Allure Report
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: allure-results
+          merge-multiple: true
+
+      - name: Generate Allure Report
+        if: ${{ hashFiles('allure-results/**') != '' }}
+        run: |
+          npx allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+          retention-days: 30
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          destination_dir: allure-report
+```
+
+---
+
 ## Understanding JMeter Reports
 
-### HTML Dashboard (Recommended)
+### HTML Dashboard (JMeter Native)
 - **Statistics Table** — Summary per sampler
 - **Charts** — Response times, throughput, errors over time
 - **Percentiles** — 50th, 90th, 95th, 99th percentile response times
@@ -119,46 +258,18 @@ jmeter -n -t tests/api-stress-test.jmx -l reports/stress-test.jtl -e -o reports/
 
 ---
 
-## CI/CD Integration
+## Allure Report vs JMeter HTML Dashboard
 
-### GitHub Actions (`.github/workflows/jmeter.yml`)
-```yaml
-name: Performance Tests
-on:
-  schedule:
-    - cron: '0 2 * * 0'  # Weekly Sunday 2AM
-  workflow_dispatch:
-    inputs:
-      test-plan:
-        description: 'Test plan to run'
-        required: true
-        type: choice
-        options:
-          - load
-          - stress
-          - smoke
-
-jobs:
-  performance:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: { distribution: 'temurin', java-version: '17' }
-      - name: Install JMeter
-        run: |
-          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xzf apache-jmeter-5.6.3.tgz
-          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
-      - name: Run JMeter Test
-        run: |
-          jmeter -n -t tests/${{ github.event.inputs.test-plan || 'jsonplaceholder-load-test' }}.jmx -l results.jtl -e -o html-report
-      - name: Upload Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: jmeter-report
-          path: html-report/
-```
+| Feature | JMeter HTML Dashboard | Allure Report |
+|---------|----------------------|---------------|
+| **Trend Analysis** | ❌ | ✅ |
+| **History/Retention** | ❌ | ✅ |
+| **Retry Timeline** | ❌ | ✅ |
+| **Categories/Severity** | ❌ | ✅ |
+| **Embedded Screenshots** | ❌ | ✅ |
+| **Environment Tracking** | ❌ | ✅ |
+| **CI/CD Integration** | Manual | Native |
+| **Cross-Test Comparison** | ❌ | ✅ |
 
 ---
 
@@ -205,3 +316,4 @@ MIT License — Feel free to use as reference for your own performance testing p
 - [Apache JMeter](https://jmeter.apache.org/) for the industry-standard load testing tool
 - [JSONPlaceholder](https://jsonplaceholder.typicode.com/) for the public test API
 - [BlazeMeter](https://www.blazemeter.com/) for JMeter cloud execution options
+- [Allure Report](https://allurereport.org/) for advanced test reporting
