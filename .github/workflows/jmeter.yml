@@ -87,13 +87,6 @@ jobs:
           tar -xzf apache-jmeter-5.6.3.tgz
           echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
 
-      - name: Download Allure JMeter Plugin
-        run: |
-          mkdir -p lib
-          # Download the JAR directly from Maven Central
-          wget -q -O lib/allure-jmeter-plugin-2.16.0.jar https://repo1.maven.org/maven2/io/qameta/allure/jmeter-allure-plugin/2.16.0/jmeter-allure-plugin-2.16.0.jar
-          cp lib/allure-jmeter-plugin-2.16.0.jar apache-jmeter-5.6.3/lib/
-
       - name: Create jmeter.properties
         run: |
           echo "jmeter.save.saveservice.output_format=xml" > jmeter.properties
