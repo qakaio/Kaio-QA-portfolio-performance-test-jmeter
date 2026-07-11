@@ -64,6 +64,14 @@ jobs:
           path: reports/
           retention-days: 30
 
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 7
+
   allure:
     name: Generate Allure Report
     needs: test
@@ -103,6 +111,12 @@ jobs:
           wget -q https://github.com/allure-framework/allure2/releases/download/2.30.0/allure-2.30.0.tgz
           tar -xzf allure-2.30.0.tgz
           ls -la allure-2.30.0/bin/allure
+
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
 
       - name: Generate Allure Report
         if: always()
