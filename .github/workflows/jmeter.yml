@@ -90,9 +90,9 @@ jobs:
       - name: Download Allure JMeter Plugin
         run: |
           mkdir -p lib
-          wget -q -O lib/jmeter-allure-plugin-2.16.0.zip https://repo.maven.apache.org/maven2/io/qameta/allure/jmeter-allure-plugin/2.16.0/jmeter-allure-plugin-2.16.0.zip
-          unzip -o lib/jmeter-allure-plugin-2.16.0.zip -d lib/
-          cp lib/jmeter-allure-plugin-2.16.0/*.jar apache-jmeter-5.6.3/lib/
+          # Download the JAR directly from Maven Central
+          wget -q -O lib/allure-jmeter-plugin-2.16.0.jar https://repo1.maven.org/maven2/io/qameta/allure/jmeter-allure-plugin/2.16.0/jmeter-allure-plugin-2.16.0.jar
+          cp lib/allure-jmeter-plugin-2.16.0.jar apache-jmeter-5.6.3/lib/
 
       - name: Create jmeter.properties
         run: |
