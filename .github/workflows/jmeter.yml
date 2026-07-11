@@ -112,10 +112,9 @@ jobs:
           ALLURE_RESULTS_DIR: allure-results
 
       - name: Deploy Allure Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
           destination_dir: allure-report
           keep_files: true
-          force_orphan: true
