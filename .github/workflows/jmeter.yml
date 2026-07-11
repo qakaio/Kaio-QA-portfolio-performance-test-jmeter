@@ -44,6 +44,13 @@ jobs:
           tar -xzf apache-jmeter-5.6.3.tgz
           echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
 
+      - name: Install Allure JMeter Plugin
+        run: |
+          wget -q https://github.com/allure-framework/allure-jmeter/releases/download/2.30.0/allure-jmeter-2.30.0.zip
+          unzip -q allure-jmeter-2.30.0.zip
+          mkdir -p apache-jmeter-5.6.3/lib/ext
+          cp allure-jmeter-2.30.0/*.jar apache-jmeter-5.6.3/lib/ext/
+
       - name: Create jmeter.properties
         run: |
           echo "jmeter.save.saveservice.output_format=xml" > jmeter.properties
@@ -96,29 +103,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install JMeter
-        run: |
-          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xzf apache-jmeter-5.6.3.tgz
-          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
-
-      - name: Create jmeter.properties
-        run: |
-          echo "jmeter.save.saveservice.output_format=xml" > jmeter.properties
-          echo "jmeter.save.saveservice.assertion_results=all" >> jmeter.properties
-          echo "jmeter.save.saveservice.assertion_results_failure_message=true" >> jmeter.properties
-          echo "allure.results.directory=allure-results" >> jmeter.properties
-
-      - name: Run JMeter Tests for Allure
-        run: |
-          jmeter -n -t tests/jsonplaceholder-load-test.jmx -l results-load.jtl
-
-      - name: Download Allure
-        run: |
-          wget -q https://github.com/allure-framework/allure2/releases/download/2.30.0/allure-2.30.0.tgz
-          tar -xzf allure-2.30.0.tgz
-          ls -la allure-2.30.0/bin/allure
-
       - name: Download Allure Results
         uses: actions/download-artifact@v4
         with:
@@ -136,6 +120,12 @@ jobs:
           project=Kaio-QA-portfolio-performance-test-jmeter
           repo=https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter
           EOF
+
+      - name: Download Allure
+        run: |
+          wget -q https://github.com/allure-framework/allure2/releases/download/2.30.0/allure-2.30.0.tgz
+          tar -xzf allure-2.30.0.tgz
+          ls -la allure-2.30.0/bin/allure
 
       - name: Generate Allure Report
         if: always()
