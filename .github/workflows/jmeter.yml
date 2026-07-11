@@ -124,6 +124,7 @@ jobs:
         with:
           name: allure-results
           path: allure-results/
+          merge-multiple: true
 
       - name: Generate Environment Properties
         run: |
