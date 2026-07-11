@@ -118,6 +118,17 @@ jobs:
           name: allure-results
           path: allure-results/
 
+      - name: Generate Environment Properties
+        run: |
+          cat > allure-results/environment.properties << 'EOF'
+          framework=Apache JMeter
+          language=Java
+          browser=N/A (API Testing)
+          os=Ubuntu
+          project=Kaio-QA-portfolio-performance-test-jmeter
+          repo=https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter
+          EOF
+
       - name: Generate Allure Report
         if: always()
         run: |
