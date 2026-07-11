@@ -107,10 +107,11 @@ jobs:
       - name: Generate Allure Report
         if: always()
         run: |
+          echo "allure.report.name=Kaio-QA-portfolio-performance-test-jmeter - JMeter Performance Testing" > allure.properties
+          echo "allure.environment=Ubuntu" >> allure.properties
           ./allure-2.30.0/bin/allure generate allure-results --clean -o allure-report
         env:
           ALLURE_RESULTS_DIR: allure-results
-          ALLURE_REPORT_NAME: "Kaio-QA-portfolio-performance-test-jmeter - JMeter Performance Testing"
 
       - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
