@@ -51,6 +51,13 @@ jobs:
           echo "jmeter.save.saveservice.assertion_results_failure_message=true" >> jmeter.properties
           echo "allure.results.directory=allure-results" >> jmeter.properties
 
+      - name: Install Allure JMeter Plugin
+        run: |
+          wget -q https://github.com/allure-framework/allure-jmeter/releases/download/2.30.0/allure-jmeter-2.30.0.zip
+          unzip -q allure-jmeter-2.30.0.zip
+          mkdir -p apache-jmeter-5.6.3/lib/ext
+          cp allure-jmeter-2.30.0/*.jar apache-jmeter-5.6.3/lib/ext/
+
       - name: Run JMeter Test
         run: |
           jmeter -n -t tests/${{ matrix.test_type }}.jmx -l results-${{ matrix.test_type }}.jtl
@@ -70,6 +77,14 @@ jobs:
           name: jmeter-dashboard-${{ matrix.test_type }}
           path: reports/
           retention-days: 30
+
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 7
 
   allure:
     name: Generate Allure Report
