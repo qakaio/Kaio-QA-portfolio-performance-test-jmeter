@@ -75,6 +75,8 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download HTML Dashboards
         uses: actions/download-artifact@v4
