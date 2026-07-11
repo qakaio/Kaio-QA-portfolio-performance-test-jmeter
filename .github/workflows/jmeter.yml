@@ -71,14 +71,6 @@ jobs:
           path: reports/
           retention-days: 30
 
-      - name: Upload Allure Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: allure-results/
-          retention-days: 7
-
   allure:
     name: Generate Allure Report
     needs: test
