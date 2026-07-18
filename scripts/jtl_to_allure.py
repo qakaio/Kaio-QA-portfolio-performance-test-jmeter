@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Convert JMeter JTL (XML) results to Allure results JSON files.
+Convert JMeter JTL results to Allure results JSON files.
+Supports both CSV and XML JTL formats.
 Each JMeter sampler becomes an Allure test case.
 
 Usage:
@@ -12,11 +13,12 @@ import sys
 import json
 import time
 import uuid
+import csv
 import argparse
 import xml.etree.ElementTree as ET
 
 
-def parse_jtl(jtl_path):
+def parse_jtl_xml(jtl_path):
     """Parse JTL XML file and return list of test case dicts."""
     tree = ET.parse(jtl_path)
     root = tree.getroot()
@@ -26,7 +28,6 @@ def parse_jtl(jtl_path):
         tc = {
             "name": sample.get("lb", f"HTTP Request {i}"),
             "status": "passed" if sample.get("s") == "true" else "failed",
-            "status_code": 200 if sample.get("s") == "true" else 500,
             "duration_ms": int(float(sample.get("t", 0))),
             "response_code": sample.get("rc", ""),
             "response_message": sample.get("rm", ""),
@@ -36,7 +37,6 @@ def parse_jtl(jtl_path):
             "assertion_result": None,
         }
 
-        # Check for assertion results
         assertion = sample.find(".//assertionResult")
         if assertion is not None:
             assertion_name = assertion.findtext("name", "")
@@ -52,6 +52,48 @@ def parse_jtl(jtl_path):
         test_cases.append(tc)
 
     return test_cases
+
+
+def parse_jtl_csv(jtl_path):
+    """Parse JTL CSV file and return list of test case dicts."""
+    test_cases = []
+    with open(jtl_path, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader, start=1):
+            tc = {
+                "name": row.get("label", f"HTTP Request {i}"),
+                "status": "passed" if row.get("success", "true") == "true" else "failed",
+                "duration_ms": int(float(row.get("elapsed", 0))),
+                "response_code": row.get("responseCode", ""),
+                "response_message": row.get("responseMessage", ""),
+                "url": row.get("URL", ""),
+                "thread_name": row.get("threadName", ""),
+                "timestamp": int(float(row.get("timeStamp", time.time() * 1000))),
+                "assertion_result": None,
+            }
+
+            failure_msg = row.get("failureMessage", "")
+            if failure_msg:
+                tc["status"] = "failed"
+                tc["assertion_result"] = {
+                    "name": row.get("assertionName", "Assertion"),
+                    "failure_message": failure_msg,
+                }
+
+            test_cases.append(tc)
+
+    return test_cases
+
+
+def parse_jtl(jtl_path):
+    """Parse JTL file - auto-detect CSV vs XML format."""
+    with open(jtl_path, "r") as f:
+        first_char = f.read(1)
+    
+    if first_char == "<":
+        return parse_jtl_xml(jtl_path)
+    else:
+        return parse_jtl_csv(jtl_path)
 
 
 def create_allure_result(tc, suite_name="JMeter Performance Tests"):
@@ -123,13 +165,12 @@ def main():
             json.dump(allure_result, f, indent=2)
         count += 1
 
-    # Write environment properties
     env_file = os.path.join(args.output_dir, "environment.properties")
     with open(env_file, "w") as f:
-        f.write(f"framework=JMeter\n")
-        f.write(f"language=Python (JTL converter)\n")
-        f.write(f"project=Kaio-QA-portfolio-performance-test-jmeter\n")
-        f.write(f"repo=https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter\n")
+        f.write("framework=JMeter\n")
+        f.write("language=Python (JTL converter)\n")
+        f.write("project=Kaio-QA-portfolio-performance-test-jmeter\n")
+        f.write("repo=https://github.com/qakaio/Kaio-QA-portfolio-performance-test-jmeter\n")
         f.write(f"suite={suite_name}\n")
 
     print(f"Generated {count} Allure result files in {args.output_dir}")
