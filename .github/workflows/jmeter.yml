@@ -57,7 +57,7 @@ jobs:
 
       - name: Run JMeter Test
         run: |
-          jmeter -n -t tests/${{ matrix.test_type }}.jmx -l results-${{ matrix.test_type }}.jtl
+          jmeter -n -t tests/${{ matrix.test_type }}.jmx -l results-${{ matrix.test_type }}.jtl -Jjmeter.save.saveservice.output_format=xml -Jjmeter.save.saveservice.assertion_results=all
 
       - name: Convert JTL to Allure Results
         if: always()
