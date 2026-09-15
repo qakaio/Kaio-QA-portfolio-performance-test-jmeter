@@ -24,10 +24,10 @@ jobs:
   test:
     name: JMeter Performance Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       matrix:
-        test_type: ['jsonplaceholder-load-test', 'api-stress-test', 'api-smoke-test']
+        test_type: ['load', 'stress', 'smoke']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,14 +80,6 @@ jobs:
           path: reports/
           retention-days: 30
 
-      - name: Upload Allure Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results-${{ matrix.test_type }}
-          path: allure-results-${{ matrix.test_type }}/
-          retention-days: 7
-
   allure:
     name: Generate Allure Report
     needs: test
@@ -124,7 +116,7 @@ jobs:
 
   deploy-pages:
     name: Deploy JMeter Reports to GitHub Pages
-    needs: test
+    needs: allure
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
