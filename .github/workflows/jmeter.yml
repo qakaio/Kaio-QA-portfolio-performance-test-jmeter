@@ -20,55 +20,76 @@ on:
           - all
         default: 'smoke'
 
+env:
+  JMETER_VERSION: 5.6.3
+  JMETER_HOME: /opt/apache-jmeter-${{ env.JMETER_VERSION }}
+  JMETER_BIN: ${{ env.JMETER_HOME }}/bin
+  TEST_TYPE: ${{ github.event.inputs.test_type || 'smoke' }}
+
 jobs:
   test:
     name: JMeter Performance Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: .
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
+          cache: gradle
 
-      - name: Install JMeter
+      - name: Download and install JMeter
         run: |
-          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xzf apache-jmeter-5.6.3.tgz
-          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
+          mkdir -p /opt
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz -O /tmp/jmeter.tgz
+          tar -xzf /tmp/jmeter.tgz -C /opt
+          ln -sf /opt/apache-jmeter-${{ env.JMETER_VERSION }} /opt/jmeter
+          export JMETER_HOME=/opt/jmeter
+          echo "JMETER_HOME=$JMETER_HOME" >> $GITHUB_ENV
 
-      - name: Create jmeter.properties
-        run: |
-          echo "jmeter.save.saveservice.output_format=xml" > jmeter.properties
-          echo "jmeter.save.saveservice.assertion_results=all" >> jmeter.properties
-          echo "jmeter.save.saveservice.assertion_results_failure_message=true" >> jmeter.properties
+      - name: Make JMeter executable
+        run: chmod +x $JMETER_HOME/bin/jmeter
+
+      - name: Install test scripts
+        run: chmod +x tests/*.jmx scripts/jtl_to_allure.py
 
       - name: Run JMeter Test
         run: |
-          jmeter -n -t tests/${{ inputs.test_type }}.jmx -l results-${{ inputs.test_type }}.jtl -Jjmeter.save.saveservice.output_format=xml -Jjmeter.save.saveservice.assertion_results=all
+          $JMETER_HOME/bin/jmeter -n -t tests/${{ env.TEST_TYPE }}.jmx -l results-${{ env.TEST_TYPE }}.jtl \
+            -Jjmeter.save.saveservice.output_format=xml \
+            -Jjmeter.save.saveservice.assertion_results=all \
+            -Jjmeter.save.saveservice.assertion_results_failure_message=true
+        timeout-minutes: 60
+        env:
+          CI: true
 
       - name: Convert JTL to Allure Results
         if: always()
         run: |
-          python scripts/jtl_to_allure.py results-${{ inputs.test_type }}.jtl --output-dir allure-results-${{ inputs.test_type }}
+          python scripts/jtl_to_allure.py results-${{ env.TEST_TYPE }}.jtl --output-dir allure-results-${{ env.TEST_TYPE }}
+        working-directory: .
 
       - name: Upload JTL Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-results-${{ inputs.test_type }}
-          path: results-${{ inputs.test_type }}.jtl
+          name: jmeter-results-${{ env.TEST_TYPE }}
+          path: results-${{ env.TEST_TYPE }}.jtl
           retention-days: 30
 
       - name: Upload HTML Dashboard
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-dashboard-${{ inputs.test_type }}
+          name: jmeter-dashboard-${{ env.TEST_TYPE }}
           path: reports/
           retention-days: 30
 
@@ -87,7 +108,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: allure-results-*
-          path: allure-results/
+          path: allure-results
           merge-multiple: true
 
       - name: Install Allure
@@ -97,6 +118,8 @@ jobs:
         if: always()
         run: |
           allure generate allure-results --clean -o allure-report --name "Kaio-QA-portfolio-performance-test-jmeter - JMeter Performance Test"
+        env:
+          ALLURE_RESULTS_DIR: allure-results
 
       - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
@@ -118,7 +141,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: jmeter-dashboard-*
-          path: jmeter-dashboard-merged/
+          path: jmeter-dashboard-merged
           merge-multiple: true
 
       - name: Deploy to GitHub Pages
@@ -128,3 +151,17 @@ jobs:
           publish_dir: ./jmeter-dashboard-merged
           destination_dir: .
           keep_files: true
+
+  notify:
+    name: Notify on Failure
+    needs: test
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "❌ JMeter performance tests failed!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run: ${{ github.run_id }}"
+          echo "Check: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
