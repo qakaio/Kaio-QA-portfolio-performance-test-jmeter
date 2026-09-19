@@ -76,7 +76,7 @@ jobs:
           esac
           rm -rf reports
           $JMETER_HOME/bin/jmeter -n -t "$test_file" -l results-${{ env.TEST_TYPE }}.jtl -e -o reports \
-            -Jjmeter.save.saveservice.output_format=xml \
+            -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.assertion_results=all \
             -Jjmeter.save.saveservice.assertion_results_failure_message=true
         timeout-minutes: 60
