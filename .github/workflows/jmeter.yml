@@ -25,6 +25,13 @@ env:
   JMETER_BIN: /opt/apache-jmeter-5.6.3/bin
   TEST_TYPE: ${{ github.event.inputs.test_type || 'smoke' }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   test:
     name: JMeter Performance Tests
@@ -67,7 +74,8 @@ jobs:
             stress) test_file="tests/api-stress-test.jmx" ;;
             *) echo "Unsupported test type: $TEST_TYPE"; exit 1 ;;
           esac
-          $JMETER_HOME/bin/jmeter -n -t "$test_file" -l results-${{ env.TEST_TYPE }}.jtl \
+          rm -rf reports
+          $JMETER_HOME/bin/jmeter -n -t "$test_file" -l results-${{ env.TEST_TYPE }}.jtl -e -o reports \
             -Jjmeter.save.saveservice.output_format=xml \
             -Jjmeter.save.saveservice.assertion_results=all \
             -Jjmeter.save.saveservice.assertion_results_failure_message=true
