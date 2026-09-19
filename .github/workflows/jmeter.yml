@@ -43,7 +43,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
       - name: Download and install JMeter
         run: |
@@ -79,7 +78,11 @@ jobs:
       - name: Convert JTL to Allure Results
         if: always()
         run: |
-          python scripts/jtl_to_allure.py results-${{ env.TEST_TYPE }}.jtl --output-dir allure-results-${{ env.TEST_TYPE }}
+          if [ -f "results-${{ env.TEST_TYPE }}.jtl" ]; then
+            python scripts/jtl_to_allure.py results-${{ env.TEST_TYPE }}.jtl --output-dir allure-results-${{ env.TEST_TYPE }}
+          else
+            echo "No JTL result was produced; skipping Allure conversion."
+          fi
         working-directory: .
 
       - name: Upload JTL Results
