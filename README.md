@@ -8,6 +8,31 @@ Performance testing scripts and reports using **Apache JMeter** to evaluate API 
 
 Built by [Kaio Garcia](https://github.com/qakaio) — Senior QA Engineer
 
+## 60-second start
+
+- Purpose: JMeter performance validation for API and web-load scenarios with a small smoke gate before heavier runs.
+- Prerequisites: Java 17+, JMeter 5.6+, and a shell environment with `jmeter` on PATH.
+- Install: download JMeter and ensure the `bin` directory is on PATH.
+- One test command: `jmeter -n -t tests/api-smoke-test.jmx -l reports/smoke.jtl -e -o reports/html-dashboard`.
+- Expected result: a quick smoke run completes, produces a JTL result, and generates a local HTML dashboard.
+- Report command: `ls reports/html-dashboard` or open the generated dashboard in a browser.
+
+## Getting Started
+
+```text
+Kaio-QA-portfolio-performance-test-jmeter
+├── tests/                 # JMX performance plans for smoke, load, and stress
+├── reports/               # HTML dashboard, CSV, and JTL outputs
+├── scripts/               # validation and report generation helpers
+├── .github/workflows/     # performance CI and report publication
+├── jmeter.properties      # JMeter and Allure export settings
+├── package.json           # local report utility scripts
+├── README.md              # runbook and scenario overview
+└── data/                  # parameterized inputs for reusable test data
+```
+
+This repository focuses on throughput, stability, and clear performance evidence: run a smoke gate first, then escalate to the heavier scenarios only when the environment is in a valid state.
+
 ---
 
 ## Project Overview

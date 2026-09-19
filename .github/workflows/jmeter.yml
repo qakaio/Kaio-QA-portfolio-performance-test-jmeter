@@ -64,7 +64,25 @@ jobs:
         run: chmod +x $JMETER_HOME/bin/jmeter
 
       - name: Install test scripts
-        run: chmod +x tests/*.jmx scripts/jtl_to_allure.py
+        run: chmod +x tests/*.jmx scripts/*.py
+
+      - name: Validate selected JMeter plan
+        run: |
+          case "$TEST_TYPE" in
+            smoke) test_file="tests/api-smoke-test.jmx" ;;
+            load) test_file="tests/jsonplaceholder-load-test.jmx" ;;
+            stress) test_file="tests/api-stress-test.jmx" ;;
+            *) echo "Unsupported test type: $TEST_TYPE"; exit 1 ;;
+          esac
+          python scripts/validate_jmeter_test.py "$test_file"
+
+      - name: Run smoke validation before long runs
+        if: env.TEST_TYPE != 'smoke'
+        run: |
+          $JMETER_HOME/bin/jmeter -n -t tests/api-smoke-test.jmx -l results-smoke.jtl -e -o reports-smoke \
+            -Jjmeter.save.saveservice.output_format=csv \
+            -Jjmeter.save.saveservice.assertion_results=all \
+            -Jjmeter.save.saveservice.assertion_results_failure_message=true
 
       - name: Run JMeter Test
         run: |
