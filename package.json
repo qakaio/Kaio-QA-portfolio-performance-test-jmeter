@@ -23,9 +23,9 @@
     "allure-report"
   ],
   "scripts": {
-    "test:load": "jmeter -n -t tests/load.jmx -l results-load.jtl -e -o report-load",
-    "test:stress": "jmeter -n -t tests/stress.jmx -l results-stress.jtl -e -o report-stress",
-    "test:smoke": "jmeter -n -t tests/smoke.jmx -l results-smoke.jtl -e -o report-smoke",
+    "test:load": "jmeter -n -t tests/jsonplaceholder-load-test.jmx -l results-load.jtl -e -o report-load",
+    "test:stress": "jmeter -n -t tests/api-stress-test.jmx -l results-stress.jtl -e -o report-stress",
+    "test:smoke": "jmeter -n -t tests/api-smoke-test.jmx -l results-smoke.jtl -e -o report-smoke",
     "test:all": "npm run test:load && npm run test:stress && npm run test:smoke",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
     "allure:open": "allure open allure-report"

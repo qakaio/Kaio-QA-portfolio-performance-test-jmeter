@@ -17,7 +17,6 @@ on:
           - smoke
           - load
           - stress
-          - all
         default: 'smoke'
 
 env:
@@ -63,7 +62,13 @@ jobs:
 
       - name: Run JMeter Test
         run: |
-          $JMETER_HOME/bin/jmeter -n -t tests/${{ env.TEST_TYPE }}.jmx -l results-${{ env.TEST_TYPE }}.jtl \
+          case "$TEST_TYPE" in
+            smoke) test_file="tests/api-smoke-test.jmx" ;;
+            load) test_file="tests/jsonplaceholder-load-test.jmx" ;;
+            stress) test_file="tests/api-stress-test.jmx" ;;
+            *) echo "Unsupported test type: $TEST_TYPE"; exit 1 ;;
+          esac
+          $JMETER_HOME/bin/jmeter -n -t "$test_file" -l results-${{ env.TEST_TYPE }}.jtl \
             -Jjmeter.save.saveservice.output_format=xml \
             -Jjmeter.save.saveservice.assertion_results=all \
             -Jjmeter.save.saveservice.assertion_results_failure_message=true
